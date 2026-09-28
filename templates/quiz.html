@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto mt-8">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold theme-text-primary">Assessment: {{ subject.name }}</h2>
+        <a href="/subject/{{ subject.id }}" class="theme-muted font-medium hover:underline">Exit Quiz</a>
+    </div>
+
+    <div class="font-bold theme-muted mb-4 uppercase tracking-wider text-sm" id="score-tracker">Question 1 / 10</div>
+
+    <div id="quiz-area">
+        <div class="theme-surface rounded-3xl p-8 shadow-md border theme-border mb-6">
+            <h3 class="text-xl font-semibold theme-text leading-relaxed" id="question-text">Generating...</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-area"></div>
+    </div>
+
+    <button id="next-btn" class="theme-btn w-full mt-8 py-4 rounded-2xl font-bold text-lg hidden shadow-lg">Next Question ➔</button>
+</div>
+
+<style>
+    /* Quiz specific dynamic button styles */
+    .opt-btn { background: transparent; border: 2px solid var(--border); color: var(--text-main); font-size: 1.1rem; padding: 1.5rem; border-radius: 1rem; cursor: pointer; text-align: left; transition: all 0.2s; font-weight: 500; }
+    .opt-btn:hover:not(:disabled) { border-color: var(--primary); background: rgba(124,58,237,0.05); }
+    .opt-btn.correct { background: #10B981; color: white; border-color: #10B981; }
+    .opt-btn.wrong { background: #EF4444; color: white; border-color: #EF4444; }
+</style>
+
+<script>
+    const questions = {{ questions | tojson | safe }};
+    let currentQ = 0, correctCount = 0;
+
+    function loadQuestion() {
+        if(currentQ >= questions.length) return finishQuiz();
+        
+        document.getElementById('score-tracker').innerText = `Question ${currentQ + 1} / ${questions.length}`;
+        const qData = questions[currentQ];
+        
+        // FIX: Fallback system ensures it reads 'q' or 'question' smoothly
+        const safetyQuestionText = qData.q || qData.question || "Question text unavailable.";
+        document.getElementById('question-text').innerText = safetyQuestionText;
+        
+        const optionsArea = document.getElementById('options-area');
+        optionsArea.innerHTML = '';
+        document.getElementById('next-btn').style.display = 'none';
+
+        // Fix: Fallback for option variations
+        const safetyOptions = qData.options || qData.choices || [];
+
+        safetyOptions.forEach((opt, index) => {
+            let btn = document.createElement('button');
+            btn.className = 'opt-btn theme-surface';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(btn, index, qData.answer);
+            optionsArea.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, selected, correct) {
+        document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+        if(selected === correct) { btn.classList.add('correct'); correctCount++; } 
+        else { btn.classList.add('wrong'); document.querySelectorAll('.opt-btn')[correct].classList.add('correct'); }
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    document.getElementById('next-btn').onclick = () => { currentQ++; loadQuestion(); };
+
+    function finishQuiz() {
+        document.getElementById('quiz-area').innerHTML = `<div class="theme-surface rounded-3xl p-8 border theme-border text-center"><h2 class="text-3xl font-bold theme-text mb-4">Processing Score...</h2></div>`;
+        document.getElementById('next-btn').style.display = 'none';
+        
+        fetch('/finish_quiz', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({correct: correctCount, total: questions.length})
+        }).then(res => res.json()).then(data => {
+            let msg = `<div class="theme-surface rounded-3xl p-8 border theme-border text-center shadow-lg">
+                <div class="text-5xl mb-4">🎯</div>
+                <h2 class="text-4xl font-bold theme-text mb-2">Score: ${correctCount}/${questions.length}</h2>`;
+            if(data.points_earned > 0) msg += `<p class="text-emerald-500 font-bold text-xl mt-2">Earned +${data.points_earned} Points!</p>`;
+            else msg += `<p class="text-red-500 font-bold text-xl mt-2">Failed. No points earned.</p>`;
+            msg += `<br><a href='/subject/{{ subject.id }}' class='theme-btn inline-block mt-6 px-8 py-3 rounded-xl font-bold'>Return to Room</a></div>`;
+            document.getElementById('quiz-area').innerHTML = msg;
+            document.getElementById('nav-points').innerText = `⭐ ${data.total_points} PTS`;
+        });
+    }
+
+    // Replace the very last section of your script with this:
+    if (questions && questions.length > 0) {
+        loadQuestion();
+    } else {
+        // This stops it from staying stuck on "Generating..."
+        document.getElementById('question-text').innerHTML = `
+            <div class="text-red-500 font-bold">Generation Failed</div>
+            <div class="text-sm theme-muted mt-2">The AI couldn't read your file or the API key is invalid. Check your terminal for errors.</div>
+        `;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="theme-surface rounded-3xl p-10 text-center shadow-sm border theme-border mb-6 border-b-4" style="border-bottom-color: var(--primary);">
+    <h2 class="text-4xl font-bold theme-text mb-2">🛍️ Rewards Store</h2>
+    <p class="theme-muted text-lg">Spend your hard-earned points to customize your LMS interface.</p>
+</div>
+
+<div class="flex justify-between items-center mb-6 px-2">
+    <h3 class="text-2xl font-bold theme-text">UI Themes</h3>
+    {% if current_user.active_theme != 'theme-default' %}
+    <form action="/equip_default" method="POST">
+        <button type="submit" class="px-4 py-2 rounded-xl border theme-border theme-text font-medium hover:bg-black/5 transition">Reset Default Theme</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in items %}
+    <div class="theme-surface rounded-3xl p-6 shadow-sm border theme-border flex flex-col items-center text-center">
+        <div class="text-5xl mb-4">{{ item.icon }}</div>
+        <h4 class="text-xl font-bold theme-text mb-2">{{ item.name }}</h4>
+        <p class="theme-muted text-sm mb-6 flex-grow">{{ item.description }}</p>
+        
+        <div class="w-full">
+        {% if item.id in owned_ids %}
+            {% if current_user.active_theme == item.theme_class %}
+                <button class="w-full py-3 rounded-xl bg-emerald-500 text-white font-bold cursor-default shadow-md">Currently Equipped</button>
+            {% else %}
+                <form action="/equip/{{ item.id }}" method="POST">
+                    <button type="submit" class="w-full py-3 rounded-xl border-2 border-emerald-500 text-emerald-500 font-bold hover:bg-emerald-50 transition">Equip Theme</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <form action="/buy/{{ item.id }}" method="POST" onsubmit="return confirm('Spend {{ item.price }} points?');">
+                <button type="submit" class="w-full py-3 rounded-xl theme-btn font-bold flex justify-center items-center gap-2 shadow-md">
+                    <span>Buy for</span> <span>⭐ {{ item.price }}</span>
+                </button>
+            </form>
+        {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

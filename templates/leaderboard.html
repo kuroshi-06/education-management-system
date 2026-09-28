@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto theme-surface border theme-border rounded-[40px] p-10 shadow-sm">
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-black theme-text tracking-tight">Leaderboard</h2>
+        <p class="theme-muted">The top students of the EduWay ecosystem.</p>
+    </div>
+
+    <div class="space-y-4">
+        {% for user in users %}
+        <div class="flex items-center justify-between p-4 rounded-[24px] {% if user.id == current_user.id %}bg-violet-50 border-2 border-violet-200{% else %}bg-slate-50 border theme-border{% endif %}">
+            <div class="flex items-center gap-5">
+                <span class="font-black theme-muted w-6">{{ loop.index }}</span>
+                <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" class="w-12 h-12 rounded-full object-cover">
+                <div>
+                    <div class="font-bold theme-text">{{ user.full_name or user.username }}</div>
+                    <div class="text-[10px] theme-muted font-bold uppercase">{{ user.bio }}</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="font-black theme-text-primary text-lg">{{ user.points }}</div>
+                <div class="text-[10px] theme-muted font-bold">POINTS</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

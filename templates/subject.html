@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mb-4">
+    <a href="/" class="theme-text-primary font-medium flex items-center gap-2">← Back to Dashboard</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Left: Launch Quiz -->
+    <div class="theme-btn rounded-3xl p-10 text-center flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+        <div class="text-5xl mb-4">🧠</div>
+        <h2 class="text-3xl font-bold text-white mb-2">Knowledge Test</h2>
+        <p class="text-white/80 mb-8 max-w-sm">Generate a 10-question AI assessment based on all uploaded materials in {{ subject.name }}.</p>
+        <a href="/quiz/{{ subject.id }}" class="bg-white text-violet-700 font-bold text-lg px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition transform">Launch Assessment</a>
+    </div>
+
+    <!-- Right: Upload Files -->
+    <div class="theme-surface rounded-3xl p-8 shadow-sm border theme-border flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold theme-text">Study Materials</h3>
+            <span class="bg-emerald-50 text-emerald-600 text-xs font-bold px-3 py-1 rounded-full">+1 Point per upload</span>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data" class="flex gap-2 mb-6">
+            <input type="file" name="file" accept=".pdf" class="flex-grow px-4 py-2 border theme-border rounded-xl theme-text bg-transparent" required>
+            <button type="submit" class="theme-btn px-6 py-2 rounded-xl font-medium">Upload</button>
+        </form>
+
+        <div class="space-y-3 overflow-y-auto max-h-[300px] pr-2">
+            {% for file in subject.files %}
+                <div class="flex items-center justify-between p-4 border theme-border rounded-xl bg-black/5">
+                    <span class="font-medium theme-text flex items-center gap-2">📄 {{ file.filename }}</span>
+                    <form action="/delete_file/{{ file.id }}" method="POST">
+                        <button type="submit" class="text-red-500 text-sm font-medium hover:underline">Remove</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="text-center p-6 theme-muted border theme-border border-dashed rounded-xl">No materials uploaded yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

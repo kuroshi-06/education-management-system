@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduWay LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Theme Engine - CSS Variables */
+        :root { --bg: #F8FAFC; --surface: #FFFFFF; --text-main: #1E293B; --text-muted: #64748B; --primary: #1fb4d9; --primary-hover: #1fb4d9; --border: #F1F5F9; }
+        
+        /* Custom Purchased Themes */
+        body.theme-dark { --bg: #0F172A; --surface: #1E293B; --text-main: #F8FAFC; --text-muted: #94A3B8; --primary: #8B5CF6; --primary-hover: #A78BFA; --border: #334155; }
+        body.theme-hacker { --bg: #000000; --surface: #0a0a0a; --text-main: #22C55E; --text-muted: #16A34A; --primary: #22C55E; --primary-hover: #4ADE80; --border: #14532D; }
+        body.theme-blossom { --bg: #FDF2F8; --surface: #FFFFFF; --text-main: #831843; --text-muted: #BE185D; --primary: #DB2777; --primary-hover: #F43F5E; --border: #FBCFE8; }
+        body.theme-ocean { --bg: #E0F2FE; --surface: #F0F9FF; --text-main: #0C4A6E; --text-muted: #0369A1; --primary: #0284C7; --primary-hover: #0369A1; --border: #BAE6FD; }
+        body.theme-coffee { --bg: #FDF8F5; --surface: #FFFFFF; --text-main: #4A3C31; --text-muted: #8B7355; --primary: #8B4513; --primary-hover: #A0522D; --border: #E6D5C3; }
+        body.theme-sunset { --bg: #FFF7ED; --surface: #FFFFFF; --text-main: #7C2D12; --text-muted: #C2410C; --primary: #EA580C; --primary-hover: #C2410C; --border: #FFEDD5; }
+        body.theme-cyber { --bg: #0D0221; --surface: #190B28; --text-main: #00FFCC; --text-muted: #A6A2A2; --primary: #FF007F; --primary-hover: #FF4DA6; --border: #00FFCC; }
+
+        /* Global UI Styling */
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
+        .theme-surface { background-color: var(--surface); border-color: var(--border); }
+        .theme-text { color: var(--text-main); }
+        .theme-muted { color: var(--text-muted); }
+        .theme-border { border-color: var(--border); }
+        .theme-btn { background-color: var(--primary); color: white; transition: all 0.2s; }
+        .theme-btn:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .theme-text-primary { color: var(--primary); }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    </style>
+</head>
+<body class="{{ current_user.active_theme if current_user.is_authenticated else 'theme-default' }}">
+    <div class="min-h-screen p-4 md:p-6 lg:p-8">
+        <div class="max-w-[1400px] mx-auto space-y-8">
+            
+            {% if current_user.is_authenticated %}
+            <!-- Top Navigation -->
+            <nav class="theme-surface rounded-[24px] shadow-sm p-3 px-6 flex items-center justify-between border theme-border sticky top-0 z-50">
+                <!-- Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl theme-btn flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-100">E</div>
+                    <a href="/" class="font-extrabold text-xl theme-text-primary tracking-tight">EduWay</a>
+                </div>
+                
+                <!-- Main Nav Links -->
+                <div class="hidden lg:flex items-center gap-10 text-sm font-bold theme-muted">
+                    <a href="/" class="hover:theme-text-primary transition {% if request.path == '/' %}theme-text-primary border-b-2 border-current pb-1{% endif %}">Dashboard</a>
+                    <a href="/leaderboard" class="hover:theme-text-primary transition {% if request.path == '/leaderboard' %}theme-text-primary border-b-2 border-current pb-1{% endif %}">Leaderboard</a>
+                    <a href="/analytics" class="hover:theme-text-primary transition {% if request.path == '/analytics' %}theme-text-primary border-b-2 border-current pb-1{% endif %}">Analytics</a>
+                </div>
+
+                <!-- Right Side Tools -->
+                <div class="flex items-center gap-4">
+                    <!-- Rewards Store Link -->
+                    <a href="/store" class="p-2.5 rounded-full bg-slate-50 theme-muted hover:theme-text-primary hover:bg-slate-100 transition" title="Rewards Store">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </a>
+
+                    <!-- Notification Bell with Dropdown -->
+                    <div class="relative group">
+                        <button class="p-2.5 rounded-full bg-slate-50 theme-muted hover:bg-slate-100 transition relative">
+                            {% set unread_count = current_user.notifications|selectattr('is_read', 'equalto', false)|list|length %}
+                            {% if unread_count > 0 %}
+                                <span class="absolute top-2.5 right-3 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+                            {% endif %}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Content -->
+                        <div class="absolute right-0 mt-3 w-72 theme-surface border theme-border rounded-[24px] shadow-2xl hidden group-hover:block z-50 p-5 origin-top-right">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-[11px] font-black theme-muted uppercase tracking-widest">Recent Notifications</h4>
+                                <form action="/clear_notifications" method="POST">
+                                    <button class="text-[10px] theme-text-primary font-bold hover:underline">Mark read</button>
+                                </form>
+                            </div>
+                            <div class="space-y-4 max-h-64 overflow-y-auto">
+                                {% for notif in current_user.notifications[::-1][:5] %}
+                                <div class="flex gap-3 items-start border-b theme-border pb-3 last:border-0">
+                                    <div class="text-sm">🔔</div>
+                                    <div class="text-[11px] leading-relaxed theme-text">
+                                        <p class="font-medium">{{ notif.message }}</p>
+                                        <p class="text-[9px] theme-muted mt-1">{{ notif.timestamp.strftime('%H:%M %p') }}</p>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="text-center py-4">
+                                    <p class="text-[11px] theme-muted font-medium">No new activity to show.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Section -->
+                    <div class="flex items-center gap-3 border-l theme-border pl-4">
+                        <div class="text-right hidden md:block">
+                            <div class="text-sm font-bold theme-text">{{ current_user.full_name or current_user.username }}</div>
+                            <div class="text-[10px] font-bold theme-muted uppercase tracking-tighter">{{ current_user.bio }}</div>
+                        </div>
+                        <div class="relative">
+                            <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_pic) }}" 
+                                 class="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover">
+                            <a href="/logout" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] border-2 border-white" title="Logout">✕</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <main>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    <div class="fixed top-24 right-10 z-[60] space-y-3">
+                    {% for category, msg in messages %}
+                        <div class="p-4 rounded-2xl theme-surface border theme-border shadow-xl flex items-center gap-3 animate-bounce">
+                            <div class="w-2 h-2 rounded-full {% if category == 'success' %}bg-emerald-500{% else %}bg-red-500{% endif %}"></div>
+                            <span class="text-sm font-bold theme-text">{{ msg }}</span>
+                        </div>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+
+        </div>
+    </div>
+</body>
+</html>

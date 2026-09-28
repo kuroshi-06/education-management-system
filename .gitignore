@@ -1,0 +1,5 @@
+.env
+edu.db
+__pycache__/
+*.pyc
+uploads/

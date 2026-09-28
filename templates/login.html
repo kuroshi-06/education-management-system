@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh]">
+    <div class="theme-surface border theme-border rounded-[40px] p-10 lg:p-14 shadow-2xl shadow-indigo-100 max-w-md w-full relative overflow-hidden">
+        <!-- Decorative Background Glow -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-violet-100 rounded-full blur-3xl opacity-50"></div>
+        
+        <div class="text-center mb-10 relative z-10">
+            <div class="w-20 h-20 theme-btn rounded-[28px] flex items-center justify-center text-4xl mx-auto mb-6 shadow-xl shadow-indigo-200">
+                👋
+            </div>
+            <h2 class="text-3xl font-extrabold theme-text tracking-tight">Welcome to EduWay</h2>
+            <p class="theme-muted mt-2 font-medium">Log in to continue your progress</p>
+        </div>
+        
+        <form method="POST" class="space-y-5 relative z-10">
+            <div class="space-y-1">
+                <label class="text-[11px] font-black theme-muted uppercase tracking-widest ml-2">Username</label>
+                <input type="text" name="username" placeholder="Enter your username" 
+                       class="w-full p-4 rounded-2xl border theme-border bg-slate-50/50 theme-text focus:ring-4 focus:ring-violet-100 outline-none transition shadow-sm" required>
+            </div>
+            
+            <div class="space-y-1">
+                <label class="text-[11px] font-black theme-muted uppercase tracking-widest ml-2">Password</label>
+                <input type="password" name="password" placeholder="••••••••" 
+                       class="w-full p-4 rounded-2xl border theme-border bg-slate-50/50 theme-text focus:ring-4 focus:ring-violet-100 outline-none transition shadow-sm" required>
+            </div>
+
+            <button type="submit" class="theme-btn w-full py-4 rounded-[22px] font-bold text-lg shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-95 transition mt-4">
+                Log In
+            </button>
+        </form>
+        
+        <div class="text-center mt-10 relative z-10">
+            <p class="text-sm theme-muted font-medium">
+                New to the platform? 
+                <a href="/register" class="theme-text-primary font-bold hover:underline">Create Account</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
