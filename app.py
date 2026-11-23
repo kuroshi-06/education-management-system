@@ -348,10 +348,12 @@ def init_store():
         db.session.add_all(items)
         db.session.commit()
 
-if __name__ == '__main__':
-    with app.app_context():
+with app.app_context():
         db.create_all()
         init_store()
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
         os.makedirs(app.config['PROFILE_PIC_FOLDER'], exist_ok=True)
+
+if __name__ == '__main__':
+    
     app.run(debug=True)
